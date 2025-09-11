@@ -33,19 +33,17 @@ app.use(
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Health check endpoint (placeholder for T030)
+// Health check endpoint (OpenAPI contract compliant)
 app.get('/api/v1/health', (req: any, res) => {
   logger.info('Health check requested', {
     correlationId: req.correlationId,
   });
   
-  const systemHealth = getSystemHealth();
-  
+  // OpenAPI schema specifies only: status, timestamp, version
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     version: '0.1.0',
-    system: systemHealth,
   });
 });
 
