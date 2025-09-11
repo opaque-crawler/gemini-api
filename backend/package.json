@@ -20,6 +20,9 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "logs:clean": "node scripts/cleanup-logs.js",
+    "logs:clean:weekly": "node scripts/cleanup-logs.js 7",
+    "logs:clean:monthly": "node scripts/cleanup-logs.js 30",
     "clean": "rm -rf dist coverage",
     "prestart": "npm run build"
   },

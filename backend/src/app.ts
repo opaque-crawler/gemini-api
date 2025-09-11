@@ -2,12 +2,23 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { config } from 'dotenv';
+import { createLogger, requestLogger } from './utils/logger';
+import { metricsMiddleware, getSystemHealth } from './utils/monitoring';
 
 // Load environment variables
 config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Initialize logger
+const logger = createLogger('app');
+
+// Request logging middleware (before other middleware)
+app.use(requestLogger);
+
+// Metrics collection middleware
+app.use(metricsMiddleware);
 
 // Security middleware
 app.use(helmet());
@@ -23,19 +34,44 @@ app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint (placeholder for T030)
-app.get('/api/v1/health', (req, res) => {
+app.get('/api/v1/health', (req: any, res) => {
+  logger.info('Health check requested', {
+    correlationId: req.correlationId,
+  });
+  
+  const systemHealth = getSystemHealth();
+  
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     version: '0.1.0',
+    system: systemHealth,
+  });
+});
+
+// Metrics endpoint for monitoring
+app.get('/api/v1/metrics', (req: any, res) => {
+  logger.info('Metrics requested', {
+    correlationId: req.correlationId,
+  });
+  
+  const systemHealth = getSystemHealth();
+  
+  res.json({
+    timestamp: new Date().toISOString(),
+    system: systemHealth,
+    correlationId: req.correlationId,
   });
 });
 
 // Start server only if not in test environment
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
-    console.log(`🚀 Backend server running on port ${PORT}`);
-    console.log(`📊 Health check: http://localhost:${PORT}/api/v1/health`);
+    logger.info('Backend server started', {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+      healthCheck: `http://localhost:${PORT}/api/v1/health`,
+    });
   });
 }
 
