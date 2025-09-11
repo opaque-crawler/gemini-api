@@ -11,20 +11,21 @@ frontend/
 │   ├── pages/         # 메인 분석 페이지
 │   ├── services/      # API 클라이언트, 파일 검증
 │   └── hooks/         # 커스텀 React 훅
-├── tests/
-│   ├── integration/   # 컴포넌트 통합 테스트
-│   └── unit/         # 컴포넌트 단위 테스트
+├── cypress/
+│   ├── e2e/           # E2E 테스트
+│   ├── support/       # Cypress 지원 파일
+│   └── fixtures/      # 테스트 데이터
 └── public/           # 정적 자산
 ```
 
 ## 기술 스택
 
-- **Framework**: React 18+
-- **Language**: TypeScript
-- **Testing**: Jest, Cypress (E2E)
-- **File Upload**: react-dropzone
-- **API Client**: Axios
-- **Build Tool**: Create React App
+- **Framework**: React 19.1.1 (Create React App)
+- **Language**: TypeScript 4.9.5
+- **Testing**: Jest, React Testing Library, Cypress (E2E)
+- **File Upload**: react-dropzone 14.3.8
+- **API Client**: Axios 1.11.0
+- **Build Tool**: React Scripts 5.0.1
 
 ## 주요 기능
 
@@ -37,7 +38,19 @@ frontend/
 
 ## 개발 환경
 
-*개발 환경 설정은 T003 작업에서 구성됩니다.*
+### 사용 가능한 스크립트
+
+- `npm start`: 개발 서버 시작 (http://localhost:3000)
+- `npm run build`: 프로덕션 빌드 생성
+- `npm test`: Jest 단위 테스트 실행
+- `npm run test:coverage`: 코드 커버리지 포함 테스트
+- `npm run test:e2e`: Cypress E2E 테스트 실행
+- `npm run test:e2e:open`: Cypress 테스트 GUI 열기
+
+### 환경 요구사항
+
+- Node.js 18+
+- npm 또는 yarn
 
 ## 브라우저 지원
 
@@ -46,8 +59,17 @@ frontend/
 - Safari 14+
 - Edge 90+
 
+## API 통합
+
+백엔드 API 서버와 통신하여 다음 기능을 제공합니다:
+- 이미지 업로드 (POST /api/v1/images)
+- 분석 요청 (POST /api/v1/analyze)
+- 결과 조회 (GET /api/v1/analyze/{requestId})
+- 세션 관리 (POST /api/v1/session)
+
 ## 버전
 
 - **프로젝트 버전**: 0.1.0
 - **피처 브랜치**: 001-2025-9-google
 - **생성일**: 2025-09-10
+- **업데이트**: 2025-09-11 (T003 완료)
