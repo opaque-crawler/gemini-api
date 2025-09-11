@@ -62,6 +62,7 @@ frontend/
 ## API 통합
 
 백엔드 API 서버와 통신하여 다음 기능을 제공합니다:
+
 - 이미지 업로드 (POST /api/v1/images)
 - 분석 요청 (POST /api/v1/analyze)
 - 결과 조회 (GET /api/v1/analyze/{requestId})

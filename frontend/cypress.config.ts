@@ -16,7 +16,7 @@ export default defineConfig({
     requestTimeout: 10000,
     responseTimeout: 30000,
     experimentalStudio: true,
-    setupNodeEvents(on, config) {
+    setupNodeEvents() {
       // implement node event listeners here
     },
   },

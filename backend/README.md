@@ -30,11 +30,11 @@ backend/
 
 ## 개발 환경
 
-*개발 환경 설정은 T002 작업에서 구성됩니다.*
+_개발 환경 설정은 T002 작업에서 구성됩니다._
 
 ## API 엔드포인트
 
-*API 문서는 `/specs/001-2025-9-google/contracts/api.yaml` 참조*
+_API 문서는 `/specs/001-2025-9-google/contracts/api.yaml` 참조_
 
 ## 버전
 

@@ -35,7 +35,7 @@ declare global {
        * @example cy.uploadFiles(['image1.jpg', 'image2.png'])
        */
       uploadFiles(files: string[]): Chainable<Element>;
-      
+
       /**
        * Custom command to wait for image analysis to complete
        * @example cy.waitForAnalysis()

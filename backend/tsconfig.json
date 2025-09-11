@@ -35,14 +35,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": [
-    "src/**/*",
-    "tests/**/*",
-    "cli/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage"
-  ]
+  "include": ["src/**/*", "tests/**/*", "cli/**/*"],
+  "exclude": ["node_modules", "dist", "coverage"]
 }

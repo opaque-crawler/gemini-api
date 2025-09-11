@@ -11,10 +11,12 @@ const PORT = process.env.PORT || 3001;
 
 // Security middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    credentials: true,
+  })
+);
 
 // Basic middleware
 app.use(express.json({ limit: '25mb' }));
@@ -25,7 +27,7 @@ app.get('/api/v1/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    version: '0.1.0'
+    version: '0.1.0',
   });
 });
 

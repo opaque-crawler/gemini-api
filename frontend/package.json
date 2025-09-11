@@ -27,7 +27,10 @@
     "test:e2e:open": "cypress open",
     "test:coverage": "react-scripts test --coverage --watchAll=false",
     "test:ci": "react-scripts test --coverage --watchAll=false --ci",
-    "lint": "echo 'ESLint will be configured in T004'",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -50,6 +53,13 @@
   },
   "devDependencies": {
     "@types/react-dropzone": "^4.2.2",
-    "cypress": "^15.2.0"
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "cypress": "^15.2.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-jsx-a11y": "^6.10.0",
+    "eslint-plugin-react": "^7.37.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "prettier": "^3.3.3"
   }
 }

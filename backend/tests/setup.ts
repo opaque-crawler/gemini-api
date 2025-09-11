@@ -24,9 +24,9 @@ jest.mock('@google/genai', () => ({
   GoogleGenAI: jest.fn().mockImplementation(() => ({
     generateContent: jest.fn(),
     models: {
-      generateContent: jest.fn()
-    }
-  }))
+      generateContent: jest.fn(),
+    },
+  })),
 }));
 
 export {};
