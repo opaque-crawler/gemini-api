@@ -1,0 +1,649 @@
+openapi: 3.0.3
+info:
+  title: Gemini Multi-Image Analysis API
+  description: API for uploading multiple images and analyzing them with Google Gemini AI
+  version: 0.1.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Development server
+  - url: https://nano-gemini.example.com/api/v1
+    description: Production server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      operationId: getHealth
+      tags:
+        - System
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+
+  /session:
+    post:
+      summary: Create a new user session
+      operationId: createSession
+      tags:
+        - Session
+      responses:
+        '201':
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /images:
+    post:
+      summary: Upload multiple images for analysis
+      operationId: uploadImages
+      tags:
+        - Images
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  minItems: 1
+                  maxItems: 5
+                sessionId:
+                  type: string
+                  format: uuid
+              required:
+                - images
+                - sessionId
+            encoding:
+              images:
+                contentType: image/jpeg, image/png, image/webp, image/gif
+      responses:
+        '201':
+          description: Images uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageUploadResponse'
+        '400':
+          description: Invalid request (wrong format, size, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '413':
+          description: Payload too large (>20MB total)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analyze:
+    post:
+      summary: Analyze uploaded images with a prompt
+      operationId: analyzeImages
+      tags:
+        - Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+      responses:
+        '200':
+          description: Analysis completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+        '202':
+          description: Analysis started, processing asynchronously
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisStatusResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analyze/{requestId}:
+    get:
+      summary: Get analysis result by request ID
+      operationId: getAnalysisResult
+      tags:
+        - Analysis
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Analysis result retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+        '202':
+          description: Analysis still processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisStatusResponse'
+        '404':
+          description: Analysis request not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /session/{sessionId}/history:
+    get:
+      summary: Get analysis history for a session
+      operationId: getSessionHistory
+      tags:
+        - Session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Session history retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /export/{requestId}:
+    get:
+      summary: Export analysis results in various formats
+      operationId: exportAnalysisResult
+      tags:
+        - Export
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, markdown, txt]
+            default: json
+      responses:
+        '200':
+          description: Export file generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+            text/markdown:
+              schema:
+                type: string
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Analysis result not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    SessionResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        rateLimits:
+          $ref: '#/components/schemas/RateLimitStatus'
+      required:
+        - sessionId
+        - createdAt
+        - rateLimits
+
+    ImageUploadResponse:
+      type: object
+      properties:
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageMetadata'
+        totalSizeBytes:
+          type: integer
+          minimum: 0
+        sessionId:
+          type: string
+          format: uuid
+      required:
+        - images
+        - totalSizeBytes
+        - sessionId
+
+    ImageMetadata:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        originalName:
+          type: string
+        mimeType:
+          type: string
+          enum: [image/jpeg, image/png, image/webp, image/gif]
+        sizeBytes:
+          type: integer
+          minimum: 1
+        dimensions:
+          type: object
+          properties:
+            width:
+              type: integer
+              minimum: 1
+            height:
+              type: integer
+              minimum: 1
+          required:
+            - width
+            - height
+        uploadedAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [uploading, ready, processing, error]
+        validationErrors:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - originalName
+        - mimeType
+        - sizeBytes
+        - dimensions
+        - uploadedAt
+        - status
+
+    AnalysisRequest:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        imageIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          maxItems: 5
+        prompt:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        language:
+          type: string
+          pattern: '^[a-z]{2}$'
+          description: ISO 639-1 language code
+      required:
+        - sessionId
+        - imageIds
+        - prompt
+
+    AnalysisResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        requestId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [completed, partial, failed]
+        content:
+          type: string
+          description: AI-generated analysis text
+        format:
+          type: string
+          enum: [markdown, plaintext]
+        imageAnalyses:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageAnalysis'
+        metadata:
+          $ref: '#/components/schemas/AnalysisMetadata'
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - requestId
+        - status
+        - content
+        - format
+        - imageAnalyses
+        - metadata
+        - createdAt
+
+    AnalysisStatusResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, processing, completed, failed, partial]
+        estimatedCompletionTime:
+          type: string
+          format: date-time
+        progressPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+      required:
+        - requestId
+        - status
+
+    ImageAnalysis:
+      type: object
+      properties:
+        imageId:
+          type: string
+          format: uuid
+        analysis:
+          type: string
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        detectedObjects:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [success, failed, skipped]
+        error:
+          type: string
+      required:
+        - imageId
+        - analysis
+        - status
+
+    AnalysisMetadata:
+      type: object
+      properties:
+        model:
+          type: string
+          example: gemini-2.5-flash
+        tokensUsed:
+          type: integer
+          minimum: 0
+        processingTimeMs:
+          type: integer
+          minimum: 0
+        generatedAt:
+          type: string
+          format: date-time
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+      required:
+        - model
+        - tokensUsed
+        - processingTimeMs
+        - generatedAt
+
+    HistoryResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        analyses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalysisResponse'
+        totalCount:
+          type: integer
+          minimum: 0
+        hasMore:
+          type: boolean
+      required:
+        - sessionId
+        - analyses
+        - totalCount
+        - hasMore
+
+    RateLimitStatus:
+      type: object
+      properties:
+        requestsPerMinute:
+          type: object
+          properties:
+            limit:
+              type: integer
+            remaining:
+              type: integer
+            resetAt:
+              type: string
+              format: date-time
+        tokensPerMinute:
+          type: object
+          properties:
+            limit:
+              type: integer
+            remaining:
+              type: integer
+            resetAt:
+              type: string
+              format: date-time
+        requestsPerDay:
+          type: object
+          properties:
+            limit:
+              type: integer
+            remaining:
+              type: integer
+            resetAt:
+              type: string
+              format: date-time
+      required:
+        - requestsPerMinute
+        - tokensPerMinute
+        - requestsPerDay
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        requestId:
+          type: string
+          format: uuid
+      required:
+        - error
+        - message
+        - timestamp
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: validation_error
+        message:
+          type: string
+          example: Request validation failed
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+            required:
+              - field
+              - message
+        timestamp:
+          type: string
+          format: date-time
+        requestId:
+          type: string
+          format: uuid
+      required:
+        - error
+        - message
+        - details
+        - timestamp
+
+    RateLimitError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: rate_limit_exceeded
+        message:
+          type: string
+          example: Rate limit exceeded
+        retryAfter:
+          type: integer
+          description: Seconds until rate limit resets
+        limits:
+          $ref: '#/components/schemas/RateLimitStatus'
+        timestamp:
+          type: string
+          format: date-time
+        requestId:
+          type: string
+          format: uuid
+      required:
+        - error
+        - message
+        - retryAfter
+        - limits
+        - timestamp
+
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: header
+      name: X-Session-ID
+      description: Session ID for request tracking and rate limiting
+
+security:
+  - sessionAuth: []
+
+tags:
+  - name: System
+    description: System health and status endpoints
+  - name: Session
+    description: User session management
+  - name: Images
+    description: Image upload and management
+  - name: Analysis
+    description: Image analysis with AI
+  - name: Export
+    description: Export analysis results
