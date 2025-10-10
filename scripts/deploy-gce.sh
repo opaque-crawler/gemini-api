@@ -75,7 +75,7 @@ echo "🏥 헬스 체크 대기 중..."
 sleep 10
 
 # Backend 헬스 체크
-if curl -f http://localhost:3000/health &> /dev/null; then
+if curl -f http://localhost:3000/api/v1/health &> /dev/null; then
     echo -e "${GREEN}✅ Backend 서버 정상 작동${NC}"
 else
     echo -e "${RED}❌ Backend 서버 헬스 체크 실패${NC}"
