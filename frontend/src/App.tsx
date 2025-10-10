@@ -5,11 +5,14 @@ import ResultsDisplay from './components/ResultsDisplay';
 import LoadingSpinner from './components/LoadingSpinner';
 import TabSelector, { GenerationMode } from './components/TabSelector';
 import ModeGuide from './components/ModeGuide';
+import MainTabSelector, { MainTab } from './components/MainTabSelector';
+import Veo3Generator from './components/Veo3Generator';
 import { useAnalysis } from './hooks/useAnalysis';
 import { Sparkles, Upload, Search, RefreshCw, Key, AlertTriangle, X, Check } from 'lucide-react';
 import './App.css';
 
 function App() {
+  const [mainTab, setMainTab] = useState<MainTab>('nano-banana');
   const [activeMode, setActiveMode] = useState<GenerationMode>('text-to-image');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [prompt, setPrompt] = useState('');
@@ -86,10 +89,10 @@ function App() {
         <div className="container">
           <h1 className="app-title">
             <Sparkles className="icon" />
-            Nano - AI 이미지 분석기
+            Nano - AI 이미지/동영상 생성 플랫폼
           </h1>
           <p className="app-subtitle">
-            Google Gemini AI를 활용한 다중 이미지 분석 서비스
+            Google Gemini AI를 활용한 이미지 & 동영상 생성 서비스
           </p>
         </div>
       </header>
@@ -97,8 +100,14 @@ function App() {
       {/* 메인 콘텐츠 */}
       <main className="app-main">
         <div className="container">
-          {/* 탭 선택 */}
-          <TabSelector activeTab={activeMode} onTabChange={handleModeChange} />
+          {/* 메인 탭 선택 */}
+          <MainTabSelector activeTab={mainTab} onTabChange={setMainTab} />
+
+          {/* Nano Banana 탭 */}
+          {mainTab === 'nano-banana' && (
+            <>
+              {/* 탭 선택 */}
+              <TabSelector activeTab={activeMode} onTabChange={handleModeChange} />
 
           {/* 모드 가이드 */}
           <ModeGuide mode={activeMode} onExampleClick={handleExampleClick} />
@@ -250,6 +259,13 @@ function App() {
                 onExport={exportResult}
               />
             </section>
+          )}
+            </>
+          )}
+
+          {/* Veo3 탭 */}
+          {mainTab === 'veo3' && sessionId && (
+            <Veo3Generator sessionId={sessionId} />
           )}
         </div>
       </main>

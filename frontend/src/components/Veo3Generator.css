@@ -1,0 +1,394 @@
+.veo3-generator {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.veo3-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+}
+
+.veo3-header-icon {
+  flex-shrink: 0;
+}
+
+.veo3-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.veo3-subtitle {
+  margin: 0.25rem 0 0 0;
+  opacity: 0.95;
+  font-size: 0.95rem;
+}
+
+.veo3-error {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.veo3-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.veo3-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.veo3-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.veo3-textarea {
+  width: 100%;
+  padding: 0.875rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.veo3-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.veo3-textarea:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.veo3-char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.veo3-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.veo3-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.veo3-input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.veo3-file-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px dashed #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.veo3-file-input:hover {
+  border-color: #667eea;
+}
+
+.veo3-image-preview {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.veo3-preview-img {
+  max-width: 300px;
+  max-height: 200px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.veo3-uploading {
+  display: block;
+  margin-top: 0.5rem;
+  color: #667eea;
+  font-size: 0.9rem;
+}
+
+.veo3-settings {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 1.5rem;
+}
+
+.veo3-settings-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.veo3-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.veo3-setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.veo3-setting-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.veo3-select {
+  padding: 0.625rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.veo3-select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.veo3-select:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.veo3-generate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 1.5rem;
+}
+
+.veo3-generate-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.veo3-generate-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.veo3-btn-icon {
+  flex-shrink: 0;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.veo3-result {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.veo3-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.veo3-result-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.veo3-status {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.veo3-status-processing {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.veo3-status-completed {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.veo3-status-failed {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.veo3-processing {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.veo3-processing-icon {
+  color: #667eea;
+  margin-bottom: 1rem;
+}
+
+.veo3-processing p {
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+}
+
+.veo3-processing-note {
+  color: #666;
+  font-size: 0.9rem !important;
+}
+
+.veo3-video-container {
+  text-align: center;
+}
+
+.veo3-video {
+  width: 100%;
+  max-width: 800px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1.5rem;
+}
+
+.veo3-reset-btn {
+  padding: 0.75rem 1.5rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.veo3-reset-btn:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+}
+
+.veo3-failed {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.veo3-failed p {
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+}
+
+.veo3-failed-error {
+  color: #d32f2f;
+  font-size: 0.95rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.veo3-info {
+  background: #f0f4ff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid #667eea;
+}
+
+.veo3-info h4 {
+  margin: 0 0 1rem 0;
+  color: #667eea;
+  font-size: 1.2rem;
+}
+
+.veo3-info ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style: none;
+}
+
+.veo3-info li {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .veo3-header {
+    padding: 1rem;
+  }
+
+  .veo3-title {
+    font-size: 1.5rem;
+  }
+
+  .veo3-form {
+    padding: 1.5rem;
+  }
+
+  .veo3-settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .veo3-result {
+    padding: 1.5rem;
+  }
+}
