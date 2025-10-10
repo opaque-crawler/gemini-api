@@ -1,6 +1,5 @@
-# 🍌 Nano
 
-> Google Gemini를 활용한 AI 기반 이미지/동영상 생성 플랫폼
+# Google Gemini를 활용한 AI 기반 다중 이미지/비디오 분석 플랫폼
 (nano banana & veo3)
 
 ## ✨ 주요 기능
