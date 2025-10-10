@@ -82,3 +82,8 @@ uploads/
 # Production
 build.zip
 *.tar.gz
+
+# AI Tools & Development Artifacts
+.claude/
+memory/
+templates/
