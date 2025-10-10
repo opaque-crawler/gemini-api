@@ -103,7 +103,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ValidationError'
         '413':
-          description: Payload too large (>100MB total)
+          description: Payload too large (>20MB total)
           content:
             application/json:
               schema:

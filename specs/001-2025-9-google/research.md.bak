@@ -22,8 +22,8 @@ Based on comprehensive investigation of the Google Gemini API documentation and 
 
 ### Decision: Maximum 5 Images Per Request
 **Rationale**: Balances API constraints with user experience needs
-- **API Constraint**: 100MB total request size limit
-- **Practical Limit**: 100MB per image × 4 images + prompt text = ~100MB
+- **API Constraint**: 20MB total request size limit
+- **Practical Limit**: 5MB per image × 4 images + prompt text = ~20MB
 - **User Experience**: Sufficient for most analysis scenarios
 - **Performance**: Maintains <10s response time
 
@@ -50,9 +50,9 @@ Based on comprehensive investigation of the Google Gemini API documentation and 
 - OAuth: More complex, better for multi-user apps
 - Service Account: Overkill for MVP scope
 
-### Decision: File Size Limit 100MB Per Image
+### Decision: File Size Limit 5MB Per Image
 **Rationale**: Balances quality with API constraints and upload speed
-- **API Constraint**: 100MB total request size
+- **API Constraint**: 20MB total request size
 - **Upload Speed**: <3s upload time target on average connection
 - **Quality**: Sufficient for most analysis needs
 - **Storage**: Minimal temporary storage requirements
@@ -126,7 +126,7 @@ Based on comprehensive investigation of the Google Gemini API documentation and 
 
 ### Decision: Client-Side Image Optimization
 **Rationale**: Reduce API costs and improve response times
-- **Compression**: Automatic JPEG quality reduction if >100MB
+- **Compression**: Automatic JPEG quality reduction if >5MB
 - **Resizing**: Max 2048px dimension preservation
 - **Format Conversion**: WebP to JPEG for broader compatibility
 - **Validation**: Format/size checking before upload
@@ -169,12 +169,12 @@ Based on comprehensive investigation of the Google Gemini API documentation and 
 
 ## Resolution Status
 
-✅ **Maximum images per request**: 5 images (API 100MB limit)  
+✅ **Maximum images per request**: 5 images (API 20MB limit)  
 ✅ **Supported image formats**: JPEG, PNG, WebP, GIF  
 ✅ **Authentication requirements**: Server-side API key (not OAuth)  
 ✅ **Result handling**: Session storage + export options (JSON/Markdown)  
 ✅ **Rate limits**: 10 RPM, 250K TPM (Free Tier sufficient for MVP)  
-✅ **File size limits**: 100MB per image, 100MB total request  
+✅ **File size limits**: 5MB per image, 20MB total request  
 ✅ **Response times**: <10s for multi-image analysis  
 ✅ **Error handling**: Graceful degradation with partial failures  
 

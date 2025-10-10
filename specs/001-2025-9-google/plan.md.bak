@@ -33,7 +33,7 @@ A web application that allows users to easily upload multiple images and provide
 **Target Platform**: Web browsers (Chrome, Firefox, Safari, Edge)
 **Project Type**: web - determines frontend/backend structure  
 **Performance Goals**: <3s image upload, <10s API response time, support up to 10 concurrent users  
-**Constraints**: Max 100MB per image, up to 5 images per request, secure API key handling  
+**Constraints**: Max 5MB per image, up to 5 images per request, secure API key handling  
 **Scale/Scope**: Single-user focused MVP, expandable to multi-user with authentication
 
 ## Constitution Check

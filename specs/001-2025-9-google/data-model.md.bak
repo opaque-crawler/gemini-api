@@ -28,7 +28,7 @@ interface Image {
 
 **Validation Rules**:
 - `mimeType`: Must be one of ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-- `sizeBytes`: Must be ≤ 100MB (104,857,600 bytes)
+- `sizeBytes`: Must be ≤ 5MB (5,242,880 bytes)
 - `dimensions`: Both width and height must be > 0
 - `originalName`: Must not contain path separators, max 255 characters
 - `tempFilePath`: Must be within designated temp directory
@@ -78,7 +78,7 @@ interface AnalysisRequest {
 
 **Validation Rules**:
 - `imageIds`: 1-5 valid image IDs, all images must be in 'ready' state
-- `totalSizeBytes`: Must be ≤ 100MB (API constraint)
+- `totalSizeBytes`: Must be ≤ 20MB (API constraint)
 - `estimatedTokens`: Must be within rate limit allowance
 - `sessionId`: Valid session from browser
 
@@ -199,7 +199,7 @@ validateImage(file: File): ValidationResult {
   
   // Size validation
   if (file.size > 5_242_880) {
-    errors.push('Image must be smaller than 100MB');
+    errors.push('Image must be smaller than 5MB');
   }
   
   // Format validation
@@ -227,7 +227,7 @@ validateAnalysisRequest(request: AnalysisRequest): ValidationResult {
   
   // Total size validation
   if (request.totalSizeBytes > 20_971_520) {
-    errors.push('Total request size exceeds 100MB limit');
+    errors.push('Total request size exceeds 20MB limit');
   }
   
   // Rate limit validation

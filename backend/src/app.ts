@@ -243,12 +243,12 @@ app.post('/api/v1/images', (req: any, res, next): any => {
     // Calculate total size first
     const totalSizeBytes = req.files.reduce((sum: number, file: any) => sum + file.size, 0);
 
-    // Validate total upload size (20MB limit)
-    const maxTotalSize = 20971520; // 20MB exactly
+    // Validate total upload size (100MB limit)
+    const maxTotalSize = 104857600; // 100MB exactly
     if (totalSizeBytes > maxTotalSize) {
       return res.status(400).json({
         error: 'validation_error',
-        message: `Total upload size of ${Math.round(totalSizeBytes / 1024 / 1024)}MB exceeds maximum allowed size of 20MB`,
+        message: `Total upload size of ${Math.round(totalSizeBytes / 1024 / 1024)}MB exceeds maximum allowed size of 100MB`,
         details: [`Total size: ${totalSizeBytes} bytes, limit: ${maxTotalSize} bytes`]
       });
     }

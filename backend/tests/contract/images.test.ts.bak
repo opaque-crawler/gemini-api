@@ -170,8 +170,8 @@ describe('POST /api/v1/images - Contract Tests', () => {
   });
 
   describe('File Size Validation', () => {
-    it('should reject files larger than 100MB', async () => {
-      // Create a file larger than 100MB (104857600 bytes)
+    it('should reject files larger than 5MB', async () => {
+      // Create a file larger than 5MB (5242880 bytes)
       const largePath = createTestImage('large.png', 6000); // 6MB
       
       const response = await request(app)
@@ -185,12 +185,12 @@ describe('POST /api/v1/images - Contract Tests', () => {
       expect(response.body.message).toMatch(/size|large|limit/i);
     });
 
-    it('should reject when total payload exceeds 100MB', async () => {
-      // Create 5 files of 20.1MB each (total = 101MB > 100MB limit)
-      // Each file is under 100MB individual limit but total exceeds 100MB
+    it('should reject when total payload exceeds 20MB', async () => {
+      // Create 5 files of 4.2MB each (total = 21MB > 20MB limit)
+      // Each file is under 5MB individual limit but total exceeds 20MB
       const imagePaths = [];
       for (let i = 1; i <= 5; i++) {
-        imagePaths.push(createTestImage(`large${i}.png`, 4200)); // 20.1MB each, total = 101MB
+        imagePaths.push(createTestImage(`large${i}.png`, 4200)); // 4.2MB each, total = 21MB
       }
       
       let requestAgent = request(app)

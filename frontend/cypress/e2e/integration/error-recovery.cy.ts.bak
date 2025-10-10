@@ -171,7 +171,7 @@ describe('Integration Test: Error Recovery', () => {
         body: {
           error: 'validation_error',
           message: 'File size exceeds maximum limit',
-          details: ['File size: 6000000 bytes, limit: 104857600 bytes']
+          details: ['File size: 6000000 bytes, limit: 5242880 bytes']
         }
       });
       

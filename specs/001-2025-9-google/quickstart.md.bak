@@ -19,7 +19,7 @@ This guide provides executable test scenarios that validate the complete user jo
 ### Test Data
 Prepare test images in different formats:
 - `test-image-1.jpg` (2MB, 1920x1080, landscape photo)
-- `test-image-2.png` (1.100MB, 800x600, screenshot with text)
+- `test-image-2.png` (1.5MB, 800x600, screenshot with text)
 - `test-image-3.webp` (800KB, 1024x1024, graphic design)
 - `test-image-4.gif` (3MB, 500x300, animated gif for static analysis)
 - `test-large.jpg` (6MB, 4000x3000, exceeds size limit)
@@ -110,10 +110,10 @@ Prepare test images in different formats:
 1. **Large File Upload Attempt**
    - Attempt to drag `test-large.jpg` (6MB) into upload area
    - Verify immediate client-side validation error
-   - Error message should indicate 100MB limit
+   - Error message should indicate 5MB limit
 
 2. **Multiple Files Exceeding Total Limit**
-   - Upload 4 images of 4.100MB each (simulate total >100MB)
+   - Upload 4 images of 4.5MB each (simulate total >20MB)
    - Attempt to add 5th image
    - Verify total size validation triggers
 
@@ -251,7 +251,7 @@ Prepare test images in different formats:
 
 ### Resource Usage Limits
 - Client memory: <100MB for 5 images
-- Network usage: <2100MB per analysis session
+- Network usage: <25MB per analysis session
 - Storage: No persistent client-side storage
 - API calls: Stay within free tier limits
 

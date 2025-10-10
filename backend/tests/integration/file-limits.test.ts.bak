@@ -16,9 +16,9 @@ describe('Integration Test: File Size Limits', () => {
   });
 
   describe('Individual File Size Validation', () => {
-    it('should reject files larger than 100MB', async () => {
-      // Create a buffer larger than 100MB (5 * 1024 * 1024 = 104857600 bytes)
-      const largefile = Buffer.alloc(104857601, 'x'); // 100MB + 1 byte
+    it('should reject files larger than 5MB', async () => {
+      // Create a buffer larger than 5MB (5 * 1024 * 1024 = 5242880 bytes)
+      const largefile = Buffer.alloc(5242881, 'x'); // 5MB + 1 byte
       
       const response = await request(app)
         .post('/api/v1/images')
@@ -32,12 +32,12 @@ describe('Integration Test: File Size Limits', () => {
       expect(response.body.message).toMatch(/exceeds maximum size limit/i);
       expect(response.body).toHaveProperty('details');
       expect(Array.isArray(response.body.details)).toBe(true);
-      expect(response.body.details[0]).toMatch(/104857601.*104857600/);
+      expect(response.body.details[0]).toMatch(/5242881.*5242880/);
     });
 
-    it('should accept files exactly at 100MB limit', async () => {
-      // Create a buffer exactly at 100MB limit
-      const maxSizeFile = Buffer.alloc(104857600, 'x'); // Exactly 100MB
+    it('should accept files exactly at 5MB limit', async () => {
+      // Create a buffer exactly at 5MB limit
+      const maxSizeFile = Buffer.alloc(5242880, 'x'); // Exactly 5MB
       
       const response = await request(app)
         .post('/api/v1/images')
@@ -50,7 +50,7 @@ describe('Integration Test: File Size Limits', () => {
       expect(response.body.images.length).toBe(1);
       expect(response.body.images[0]).toHaveProperty('id');
       expect(response.body.images[0]).toHaveProperty('sizeBytes');
-      expect(response.body.images[0].sizeBytes).toBe(104857600);
+      expect(response.body.images[0].sizeBytes).toBe(5242880);
     });
 
     it('should accept small files well under the limit', async () => {
@@ -69,7 +69,7 @@ describe('Integration Test: File Size Limits', () => {
 
     it('should reject multiple files when one exceeds the limit', async () => {
       const validFile = Buffer.alloc(1024, 'x'); // 1KB
-      const oversizedFile = Buffer.alloc(104857601, 'x'); // 100MB + 1 byte
+      const oversizedFile = Buffer.alloc(5242881, 'x'); // 5MB + 1 byte
       
       const response = await request(app)
         .post('/api/v1/images')
@@ -80,14 +80,14 @@ describe('Integration Test: File Size Limits', () => {
 
       expect(response.body.error).toBe('validation_error');
       expect(response.body.message).toMatch(/oversized-file\.jpg.*exceeds maximum size limit/i);
-      expect(response.body.details[0]).toMatch(/104857601.*104857600/);
+      expect(response.body.details[0]).toMatch(/5242881.*5242880/);
     });
   });
 
   describe('Total Upload Size Validation', () => {
-    it('should reject when total upload size exceeds 100MB', async () => {
-      // Create 5 files of 20.1MB each (total > 100MB)
-      const file41MB = Buffer.alloc(4300000, 'x'); // 20.1MB per file
+    it('should reject when total upload size exceeds 20MB', async () => {
+      // Create 5 files of 4.1MB each (total > 20MB)
+      const file41MB = Buffer.alloc(4300000, 'x'); // 4.1MB per file
       
       const response = await request(app)
         .post('/api/v1/images')
@@ -100,39 +100,39 @@ describe('Integration Test: File Size Limits', () => {
         .expect(400);
 
       expect(response.body.error).toBe('validation_error');
-      expect(response.body.message).toMatch(/upload size.*exceeds.*maximum.*100MB/i);
-      expect(response.body.details[0]).toMatch(/105369600.*104857600/);
+      expect(response.body.message).toMatch(/upload size.*exceeds.*maximum.*20MB/i);
+      expect(response.body.details[0]).toMatch(/21500000.*20971520/);
     });
 
-    it('should accept when total upload size is exactly 100MB', async () => {
-      // Create 4 files of exactly 100MB each (total = 100MB)
-      const file100MB = Buffer.alloc(104857600, 'x'); // Exactly 100MB per file
+    it('should accept when total upload size is exactly 20MB', async () => {
+      // Create 4 files of exactly 5MB each (total = 20MB)
+      const file5MB = Buffer.alloc(5242880, 'x'); // Exactly 5MB per file
       
       const response = await request(app)
         .post('/api/v1/images')
         .field('sessionId', sessionId)
-        .attach('images', file100MB, 'file1.jpg')
-        .attach('images', file100MB, 'file2.jpg')
-        .attach('images', file100MB, 'file3.jpg')
-        .attach('images', file100MB, 'file4.jpg')
+        .attach('images', file5MB, 'file1.jpg')
+        .attach('images', file5MB, 'file2.jpg')
+        .attach('images', file5MB, 'file3.jpg')
+        .attach('images', file5MB, 'file4.jpg')
         .expect(201);
 
       expect(response.body).toHaveProperty('images');
       expect(response.body.images.length).toBe(4);
       expect(response.body).toHaveProperty('totalSizeBytes');
-      expect(response.body.totalSizeBytes).toBe(104857600); // 100MB
+      expect(response.body.totalSizeBytes).toBe(20971520); // 20MB
     });
 
-    it('should accept when total upload size is under 100MB', async () => {
-      // Create 3 files of 50MB each (total = 9MB)
-      const file50MB = Buffer.alloc(10485760, 'x'); // 50MB per file
+    it('should accept when total upload size is under 20MB', async () => {
+      // Create 3 files of 3MB each (total = 9MB)
+      const file3MB = Buffer.alloc(3145728, 'x'); // 3MB per file
       
       const response = await request(app)
         .post('/api/v1/images')
         .field('sessionId', sessionId)
-        .attach('images', file50MB, 'file1.jpg')
-        .attach('images', file50MB, 'file2.jpg')
-        .attach('images', file50MB, 'file3.jpg')
+        .attach('images', file3MB, 'file1.jpg')
+        .attach('images', file3MB, 'file2.jpg')
+        .attach('images', file3MB, 'file3.jpg')
         .expect(201);
 
       expect(response.body.images.length).toBe(3);
@@ -190,7 +190,7 @@ describe('Integration Test: File Size Limits', () => {
   describe('File Type and Size Combination', () => {
     it('should validate size for different image formats', async () => {
       // Test with different extensions but same large size
-      const largeFile = Buffer.alloc(104857601, 'x'); // Over 100MB
+      const largeFile = Buffer.alloc(5242881, 'x'); // Over 5MB
       
       const testCases = [
         { filename: 'large.jpg', mimetype: 'image/jpeg' },
@@ -245,7 +245,7 @@ describe('Integration Test: File Size Limits', () => {
 
   describe('Error Messages and Response Format', () => {
     it('should provide detailed error information for size violations', async () => {
-      const oversizedFile = Buffer.alloc(10485760, 'x'); // 50MB file
+      const oversizedFile = Buffer.alloc(10485760, 'x'); // 10MB file
       
       const response = await request(app)
         .post('/api/v1/images')
@@ -256,9 +256,9 @@ describe('Integration Test: File Size Limits', () => {
       // Verify error response structure
       expect(response.body).toEqual({
         error: 'validation_error',
-        message: expect.stringMatching(/huge-file\.jpg.*exceeds maximum size limit.*100MB/i),
+        message: expect.stringMatching(/huge-file\.jpg.*exceeds maximum size limit.*5MB/i),
         details: expect.arrayContaining([
-          expect.stringMatching(/File size:.*10485760.*bytes.*limit:.*104857600.*bytes/)
+          expect.stringMatching(/File size:.*10485760.*bytes.*limit:.*5242880.*bytes/)
         ])
       });
 
@@ -268,27 +268,27 @@ describe('Integration Test: File Size Limits', () => {
 
     it('should provide appropriate error for total size violation', async () => {
       // Create files that individually pass but collectively fail
-      const file20MB = Buffer.alloc(4194304, 'x'); // 20MB per file
+      const file4MB = Buffer.alloc(4194304, 'x'); // 4MB per file
       
       const response = await request(app)
         .post('/api/v1/images')
         .field('sessionId', sessionId)
-        .attach('images', file20MB, 'file1.jpg')
-        .attach('images', file20MB, 'file2.jpg')
-        .attach('images', file20MB, 'file3.jpg')
-        .attach('images', file20MB, 'file4.jpg')
-        .attach('images', file20MB, 'file5.jpg')
-        .attach('images', file20MB, 'file6.jpg') // This will cause total > 100MB
+        .attach('images', file4MB, 'file1.jpg')
+        .attach('images', file4MB, 'file2.jpg')
+        .attach('images', file4MB, 'file3.jpg')
+        .attach('images', file4MB, 'file4.jpg')
+        .attach('images', file4MB, 'file5.jpg')
+        .attach('images', file4MB, 'file6.jpg') // This will cause total > 20MB
         .expect(400);
 
       expect(response.body.error).toBe('validation_error');
-      expect(response.body.message).toMatch(/total.*size.*220MB.*exceeds.*maximum.*100MB/i);
-      expect(response.body.details[0]).toMatch(/Total size:.*125829120.*bytes.*limit:.*104857600.*bytes/);
+      expect(response.body.message).toMatch(/total.*size.*24MB.*exceeds.*maximum.*20MB/i);
+      expect(response.body.details[0]).toMatch(/Total size:.*25165824.*bytes.*limit:.*20971520.*bytes/);
     });
 
     it('should handle mixed validation errors correctly', async () => {
       // Test with both oversized individual files and too many files
-      const oversizedFile = Buffer.alloc(104857601, 'x'); // Over 100MB
+      const oversizedFile = Buffer.alloc(5242881, 'x'); // Over 5MB
       
       const response = await request(app)
         .post('/api/v1/images')
@@ -310,44 +310,44 @@ describe('Integration Test: File Size Limits', () => {
   describe('Performance with Large Files', () => {
     it('should handle large file uploads efficiently', async () => {
       const startTime = Date.now();
-      const file100MB = Buffer.alloc(104857600, 'x'); // 100MB file
+      const file5MB = Buffer.alloc(5242880, 'x'); // 5MB file
       
       const response = await request(app)
         .post('/api/v1/images')
         .field('sessionId', sessionId)
-        .attach('images', file100MB, 'performance-test.jpg')
+        .attach('images', file5MB, 'performance-test.jpg')
         .expect(201);
 
       const endTime = Date.now();
       const uploadTime = endTime - startTime;
 
-      expect(response.body.images[0].sizeBytes).toBe(104857600);
+      expect(response.body.images[0].sizeBytes).toBe(5242880);
       
-      // Upload should complete within reasonable time (5 seconds for 100MB)
+      // Upload should complete within reasonable time (5 seconds for 5MB)
       expect(uploadTime).toBeLessThan(5000);
     });
 
     it('should handle multiple large files within time constraints', async () => {
       const startTime = Date.now();
-      const file20MB = Buffer.alloc(4194304, 'x'); // 20MB per file
+      const file4MB = Buffer.alloc(4194304, 'x'); // 4MB per file
       
       const response = await request(app)
         .post('/api/v1/images')
         .field('sessionId', sessionId)
-        .attach('images', file20MB, 'large1.jpg')
-        .attach('images', file20MB, 'large2.jpg')
-        .attach('images', file20MB, 'large3.jpg')
-        .attach('images', file20MB, 'large4.jpg')
-        .attach('images', file20MB, 'large5.jpg')
+        .attach('images', file4MB, 'large1.jpg')
+        .attach('images', file4MB, 'large2.jpg')
+        .attach('images', file4MB, 'large3.jpg')
+        .attach('images', file4MB, 'large4.jpg')
+        .attach('images', file4MB, 'large5.jpg')
         .expect(201);
 
       const endTime = Date.now();
       const uploadTime = endTime - startTime;
 
       expect(response.body.images.length).toBe(5);
-      expect(response.body.totalSizeBytes).toBe(104857600); // 100MB total
+      expect(response.body.totalSizeBytes).toBe(20971520); // 20MB total
       
-      // Should complete within 10 seconds for 100MB total
+      // Should complete within 10 seconds for 20MB total
       expect(uploadTime).toBeLessThan(10000);
     });
   });
