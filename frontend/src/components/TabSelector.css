@@ -1,0 +1,113 @@
+/* TabSelector Component - Professional Design */
+
+.tab-selector {
+  width: 100%;
+  margin-bottom: var(--spacing-xl);
+}
+
+.tab-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.tab-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.tab-subtitle {
+  margin: var(--spacing-xs) 0 0 0;
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.tab-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.tab-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: white;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.tab-item:hover:not(.active) {
+  border-color: var(--primary-300);
+  background-color: var(--primary-50);
+}
+
+.tab-item.active {
+  border-color: var(--primary-600);
+  background-color: var(--primary-50);
+}
+
+.tab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background-color: var(--gray-100);
+  color: var(--gray-600);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.tab-item:hover:not(.active) .tab-icon {
+  background-color: var(--primary-100);
+  color: var(--primary-600);
+}
+
+.tab-item.active .tab-icon {
+  background-color: var(--primary-600);
+  color: white;
+}
+
+.tab-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.tab-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: var(--spacing-xs);
+}
+
+.tab-description {
+  font-size: 0.75rem;
+  color: var(--gray-600);
+  line-height: 1.4;
+}
+
+.tab-item.active .tab-description {
+  color: var(--primary-700);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tab-list {
+    grid-template-columns: 1fr;
+  }
+
+  .tab-item {
+    padding: var(--spacing-sm);
+  }
+
+  .tab-icon {
+    width: 36px;
+    height: 36px;
+  }
+}

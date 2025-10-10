@@ -36,30 +36,30 @@
 
 ## Phase 3.1: Setup & Infrastructure
 
-- [ ] T001 Create project structure per implementation plan
+- [x] T001 Create project structure per implementation plan
   - Create `backend/` and `frontend/` directories at repository root
   - Initialize basic directory structure as specified in plan.md
   - Create placeholder README files for each project
 
-- [ ] T002 Initialize backend Node.js project with dependencies
+- [x] T002 Initialize backend Node.js project with dependencies
   - Run `npm init` in `backend/` directory
   - Install Express.js, @google/genai, multer, winston, cors, helmet
   - Configure TypeScript with strict mode, Jest for testing
   - Set up package.json scripts: dev, test, build
 
-- [ ] T003 Initialize frontend React project with dependencies  
+- [x] T003 Initialize frontend React project with dependencies  
   - Run `create-react-app frontend --template typescript`
   - Install react-dropzone, axios for API client
   - Configure Cypress for E2E testing
   - Set up package.json scripts: start, test, test:e2e
 
-- [ ] T004 [P] Configure development environment and tooling
+- [x] T004 [P] Configure development environment and tooling
   - Create Docker Compose setup for development
   - Configure ESLint, Prettier for both frontend and backend
   - Set up environment variable templates (.env.example)
   - Create VS Code workspace settings
 
-- [ ] T005 [P] Set up logging and monitoring infrastructure
+- [x] T005 [P] Set up logging and monitoring infrastructure
   - Configure Winston logger in `backend/src/utils/logger.ts`
   - Set up structured logging format with request correlation IDs
   - Create log rotation and cleanup policies
@@ -72,53 +72,53 @@
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
 
 ### API Contract Tests (Parallel - Different Files)
-- [ ] T006 [P] Contract test GET /api/v1/health in `backend/tests/contract/health.test.ts`
+- [x] T006 [P] Contract test GET /api/v1/health in `backend/tests/contract/health.test.ts`
   - Test health check response format and status codes
   - Validate OpenAPI schema compliance
   - Must fail initially (no endpoint exists)
 
-- [ ] T007 [P] Contract test POST /api/v1/session in `backend/tests/contract/session.test.ts`
+- [x] T007 [P] Contract test POST /api/v1/session in `backend/tests/contract/session.test.ts`
   - Test session creation request/response format
   - Validate session ID generation and rate limit initialization
   - Must fail initially (no endpoint exists)
 
-- [ ] T008 [P] Contract test POST /api/v1/images in `backend/tests/contract/images.test.ts`
+- [x] T008 [P] Contract test POST /api/v1/images in `backend/tests/contract/images.test.ts`
   - Test multipart file upload with validation
   - Test file size limits, format validation, error responses
   - Must fail initially (no endpoint exists)
 
-- [ ] T009 [P] Contract test POST /api/v1/analyze in `backend/tests/contract/analyze.test.ts`
+- [x] T009 [P] Contract test POST /api/v1/analyze in `backend/tests/contract/analyze.test.ts`
   - Test analysis request format with imageIds and prompt
   - Test response format with analysis results
   - Must fail initially (no endpoint exists)
 
-- [ ] T010 [P] Contract test GET /api/v1/analyze/{requestId} in `backend/tests/contract/analyze-status.test.ts`
+- [x] T010 [P] Contract test GET /api/v1/analyze/{requestId} in `backend/tests/contract/analyze-status.test.ts`
   - Test analysis status polling
   - Test completed analysis result retrieval
   - Must fail initially (no endpoint exists)
 
-- [ ] T011 [P] Contract test GET /api/v1/session/{sessionId}/history in `backend/tests/contract/history.test.ts`
+- [x] T011 [P] Contract test GET /api/v1/session/{sessionId}/history in `backend/tests/contract/history.test.ts`
   - Test session history retrieval with pagination
   - Test history filtering and sorting
   - Must fail initially (no endpoint exists)
 
-- [ ] T012 [P] Contract test GET /api/v1/export/{requestId} in `backend/tests/contract/export.test.ts`
+- [x] T012 [P] Contract test GET /api/v1/export/{requestId} in `backend/tests/contract/export.test.ts`
   - Test export format options (JSON, markdown, txt)
   - Test export file generation and download
   - Must fail initially (no endpoint exists)
 
 ### Integration Test Scenarios (Parallel - Different Files)
-- [ ] T013 [P] Integration test: Basic multi-image analysis in `backend/tests/integration/basic-analysis.test.ts`
+- [x] T013 [P] Integration test: Basic multi-image analysis in `backend/tests/integration/basic-analysis.test.ts`
   - Upload 2 test images, submit analysis prompt
   - Validate complete flow from upload to results
   - Must fail initially (no services exist)
 
-- [ ] T014 [P] Integration test: Comparative analysis in `frontend/tests/integration/comparative-analysis.test.ts`
+- [x] T014 [P] Integration test: Comparative analysis in `frontend/tests/integration/comparative-analysis.test.ts`
   - Test UI flow for comparing multiple images
   - Validate prompt-specific analysis results
   - Must fail initially (no components exist)
 
-- [ ] T015 [P] Integration test: File size limits in `backend/tests/integration/file-limits.test.ts`
+- [x] T015 [P] Integration test: File size limits in `backend/tests/integration/file-limits.test.ts`
   - Test client and server-side validation
   - Test error handling for oversized files
   - Must fail initially (no validation exists)
@@ -128,17 +128,17 @@
   - Test error messaging and recovery
   - Must fail initially (no validation exists)
 
-- [ ] T017 [P] Integration test: Rate limiting in `backend/tests/integration/rate-limits.test.ts`
+- [x] T017 [P] Integration test: Rate limiting in `backend/tests/integration/rate-limits.test.ts`
   - Test request throttling and queue behavior
   - Test rate limit error responses
   - Must fail initially (no rate limiting exists)
 
-- [ ] T018 [P] Integration test: Session persistence in `frontend/tests/integration/session-persistence.test.ts`
+- [x] T018 [P] Integration test: Session persistence in `frontend/tests/integration/session-persistence.test.ts`
   - Test analysis history across page reloads
   - Test result export functionality
   - Must fail initially (no session management exists)
 
-- [ ] T019 [P] Integration test: Error recovery in `frontend/tests/integration/error-recovery.test.ts`
+- [x] T019 [P] Integration test: Error recovery in `frontend/tests/integration/error-recovery.test.ts`
   - Test network interruption handling
   - Test API error recovery and retry
   - Must fail initially (no error handling exists)
