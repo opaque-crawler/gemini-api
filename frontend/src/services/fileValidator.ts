@@ -14,7 +14,7 @@ export interface FileValidationOptions {
 // 기본 설정값
 const DEFAULT_OPTIONS: Required<FileValidationOptions> = {
   maxFileSize: 100 * 1024 * 1024, // 100MB
-  maxTotalSize: 20 * 1024 * 1024, // 20MB
+  maxTotalSize: 100 * 1024 * 1024, // 100MB
   maxFiles: 5,
   allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
 };

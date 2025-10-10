@@ -66,7 +66,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       'image/gif': ['.gif'],
     },
     maxFiles,
-    maxSize: 5 * 1024 * 1024, // 5MB
+    maxSize: 100 * 1024 * 1024, // 100MB
     disabled,
   });
 
@@ -119,7 +119,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               이미지를 드래그하거나 클릭하여 업로드
             </p>
             <p className="dropzone-subtext">
-              JPEG, PNG, WebP, GIF 지원 (최대 {maxFiles}개, 각 5MB 이하)
+              JPEG, PNG, WebP, GIF 지원 (최대 {maxFiles}개, 각 100MB 이하)
             </p>
           </div>
         )}
