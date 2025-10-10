@@ -176,11 +176,21 @@ export const useAnalysis = (): UseAnalysisReturn => {
       }
     } catch (error) {
       const apiError = error as ApiError;
+      console.error('❌ Analysis Error:', apiError);
+
+      // 더 자세한 에러 메시지 생성
+      let errorMessage = apiError.message || '분석 요청에 실패했습니다.';
+
+      // details가 있으면 추가
+      if (apiError.details && apiError.details.length > 0) {
+        errorMessage += '\n상세: ' + apiError.details.join(', ');
+      }
+
       setState((prev) => ({
         ...prev,
         isAnalyzing: false,
         progress: 0,
-        error: apiError.message || '분석 요청에 실패했습니다.',
+        error: errorMessage,
       }));
     }
   }, [state.sessionId, state.uploadedImages]);

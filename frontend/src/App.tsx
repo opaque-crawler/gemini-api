@@ -76,7 +76,8 @@ function App() {
 
   // 각 모드별 이미지 업로드 필수 여부
   const requiresImages = activeMode !== 'text-to-image' && activeMode !== 'text-rendering';
-  const supportsMultipleImages = activeMode === 'multi-image';
+  const supportsMultipleImages = activeMode === 'multi-image' || activeMode === 'iterative';
+  const maxImageCount = supportsMultipleImages ? 20 : 1;
 
   const canUpload = selectedFiles.length > 0 && !isUploading && !uploadedImages;
   const canAnalyze = prompt.trim().length > 0 && !isAnalyzing &&
@@ -158,7 +159,7 @@ function App() {
 
               <ImageUpload
                 onFilesSelected={handleFilesSelected}
-                maxFiles={supportsMultipleImages ? 5 : 1}
+                maxFiles={maxImageCount}
                 disabled={isUploading || !!uploadedImages}
               />
 

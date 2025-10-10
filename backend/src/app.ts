@@ -118,8 +118,8 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 100 * 1024 * 1024, // 100MB per file (high limit, we'll validate in code)
-    files: 10, // Max 10 files (high limit, we'll validate in code)
-    parts: 15, // Max form parts
+    files: 25, // Max 25 files (high limit, we'll validate in code)
+    parts: 30, // Max form parts
     fieldSize: 1048576, // 1MB per field
     fields: 15, // Max fields
   },
@@ -135,7 +135,7 @@ const upload = multer({
 
 // Image upload endpoint (OpenAPI contract compliant)
 app.post('/api/v1/images', (req: any, res, next): any => {
-  upload.array('images', 5)(req, res, (err): any => {
+  upload.array('images', 20)(req, res, (err): any => {
     if (err) {
       logger.error('Multer error in image upload', {
         correlationId: req.correlationId,
@@ -155,8 +155,8 @@ app.post('/api/v1/images', (req: any, res, next): any => {
         if (err.code === 'LIMIT_FILE_COUNT') {
           return res.status(400).json({
             error: 'validation_error',
-            message: 'Too many files uploaded. Maximum of 5 images allowed.',
-            details: ['Maximum 5 files allowed per request']
+            message: 'Too many files uploaded. Maximum of 20 images allowed.',
+            details: ['Maximum 20 files allowed per request']
           });
         }
         if (err.code === 'LIMIT_FIELD_VALUE') {
@@ -232,11 +232,11 @@ app.post('/api/v1/images', (req: any, res, next): any => {
     }
 
     // Validate maximum number of images
-    if (req.files.length > 5) {
+    if (req.files.length > 20) {
       return res.status(400).json({
         error: 'validation_error',
-        message: 'Too many files uploaded. Maximum of 5 images allowed.',
-        details: [`${req.files.length} files provided, maximum allowed: 5`]
+        message: 'Too many files uploaded. Maximum of 20 images allowed.',
+        details: [`${req.files.length} files provided, maximum allowed: 20`]
       });
     }
 
@@ -537,11 +537,25 @@ app.post('/api/v1/analyze', async (req: any, res): Promise<any> => {
       correlationId: req.correlationId,
       sessionId: req.body?.sessionId,
       error: (error as Error).message,
+      stack: (error as Error).stack,
     });
 
+    // Gemini API 에러 파싱
+    const errorMessage = (error as Error).message;
+    let userMessage = 'AI 분석 처리 중 오류가 발생했습니다.';
+
+    if (errorMessage.includes('DEADLINE_EXCEEDED')) {
+      userMessage = 'AI 분석 시간이 초과되었습니다. 이미지 수를 줄이거나 더 간단한 프롬프트를 사용해주세요.';
+    } else if (errorMessage.includes('RESOURCE_EXHAUSTED')) {
+      userMessage = 'API 사용량 한도를 초과했습니다. 잠시 후 다시 시도해주세요.';
+    } else if (errorMessage.includes('INVALID_ARGUMENT')) {
+      userMessage = '잘못된 요청입니다. 이미지 형식과 프롬프트를 확인해주세요.';
+    }
+
     res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to process analysis request',
+      error: 'analysis_failed',
+      message: userMessage,
+      details: [errorMessage],
     });
   }
 });
@@ -1137,13 +1151,18 @@ app.get('/api/v1/videos/status/:operationId', async (req: any, res): Promise<any
 
 // Start server only if not in test environment
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     logger.info('Backend server started', {
       port: PORT,
       environment: process.env.NODE_ENV || 'development',
       healthCheck: `http://localhost:${PORT}/api/v1/health`,
     });
   });
+
+  // 복잡한 이미지 분석 요청을 위해 서버 타임아웃 증가 (2분 -> 3분)
+  server.timeout = 180000; // 3분
+  server.keepAliveTimeout = 185000; // 3분 5초
+  server.headersTimeout = 186000; // 3분 6초
 }
 
 export default app;

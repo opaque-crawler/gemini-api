@@ -32,28 +32,33 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   // 파일 선택 핸들러
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      // 파일 검증
-      const validation = validateFiles(acceptedFiles, { maxFiles });
+      setPreviews((prevPreviews) => {
+        // 기존 파일 + 새 파일의 총합으로 검증
+        const combinedFiles = [...prevPreviews.map(p => p.file), ...acceptedFiles];
+        const validation = validateFiles(combinedFiles, { maxFiles });
 
-      if (!validation.valid) {
-        setErrors(validation.errors);
-        return;
-      }
+        if (!validation.valid) {
+          setErrors(validation.errors);
+          return prevPreviews; // 기존 상태 유지
+        }
 
-      // 에러 초기화
-      setErrors([]);
+        // 에러 초기화
+        setErrors([]);
 
-      // 미리보기 생성
-      const newPreviews: ImagePreview[] = acceptedFiles.map((file) => ({
-        file,
-        preview: createPreviewUrl(file),
-        id: Math.random().toString(36).substring(7),
-      }));
+        // 새 미리보기 생성
+        const newPreviews: ImagePreview[] = acceptedFiles.map((file) => ({
+          file,
+          preview: createPreviewUrl(file),
+          id: Math.random().toString(36).substring(7),
+        }));
 
-      setPreviews(newPreviews);
-      onFilesSelected(acceptedFiles);
+        // 기존 + 새로운 파일 합치기
+        const updatedPreviews = [...prevPreviews, ...newPreviews];
+
+        return updatedPreviews;
+      });
     },
-    [maxFiles, onFilesSelected]
+    [maxFiles]
   );
 
   // react-dropzone 설정
@@ -74,15 +79,19 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const removeImage = (id: string) => {
     const updatedPreviews = previews.filter((p) => p.id !== id);
     setPreviews(updatedPreviews);
-    onFilesSelected(updatedPreviews.map((p) => p.file));
   };
 
   // 모든 이미지 제거
   const clearAll = () => {
     setPreviews([]);
     setErrors([]);
-    onFilesSelected([]);
   };
+
+  // previews 상태 변경 시 부모 컴포넌트에 알림
+  useEffect(() => {
+    onFilesSelected(previews.map((p) => p.file));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previews]);
 
   // 컴포넌트 언마운트 시 미리보기 URL 정리
   useEffect(() => {
