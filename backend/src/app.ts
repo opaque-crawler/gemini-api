@@ -68,8 +68,8 @@ app.use(
 );
 
 // Basic middleware
-app.use(express.json({ limit: '25mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // Health check endpoint (OpenAPI contract compliant)
 app.get('/api/v1/health', (req: any, res) => {
@@ -117,7 +117,7 @@ app.post('/api/v1/session', (req: any, res): any => {
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 25 * 1024 * 1024, // 25MB per file (high limit, we'll validate in code)
+    fileSize: 100 * 1024 * 1024, // 100MB per file (high limit, we'll validate in code)
     files: 10, // Max 10 files (high limit, we'll validate in code)
     parts: 15, // Max form parts
     fieldSize: 1048576, // 1MB per field
@@ -148,8 +148,8 @@ app.post('/api/v1/images', (req: any, res, next): any => {
         if (err.code === 'LIMIT_FILE_SIZE') {
           return res.status(400).json({
             error: 'validation_error',
-            message: 'File exceeds maximum size limit of 5MB',
-            details: ['One or more files exceed the 5MB size limit']
+            message: 'File exceeds maximum size limit of 100MB',
+            details: ['One or more files exceed the 100MB size limit']
           });
         }
         if (err.code === 'LIMIT_FILE_COUNT') {
@@ -254,12 +254,12 @@ app.post('/api/v1/images', (req: any, res, next): any => {
     }
 
     // Then validate individual file sizes
-    const maxFileSize = 5242880; // 5MB exactly
+    const maxFileSize = 104857600; // 100MB exactly
     for (const file of req.files) {
       if (file.size > maxFileSize) {
         return res.status(400).json({
           error: 'validation_error',
-          message: `File ${file.originalname} exceeds maximum size limit of 5MB`,
+          message: `File ${file.originalname} exceeds maximum size limit of 100MB`,
           details: [`File size: ${file.size} bytes, limit: ${maxFileSize} bytes`]
         });
       }

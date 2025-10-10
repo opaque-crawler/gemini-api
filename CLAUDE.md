@@ -41,7 +41,7 @@ frontend/
 - **Rate Limits**: 10 RPM, 250K TPM (Gemini Free Tier)
 
 ## Key Constraints
-- **Images**: Max 5 per request, 5MB per image, 20MB total
+- **Images**: Max 5 per request, 100MB per image, 20MB total
 - **Formats**: JPEG, PNG, WebP, GIF only
 - **Prompts**: 1-2000 characters
 - **Storage**: Temporary files only (1-hour TTL)
