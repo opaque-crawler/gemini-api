@@ -1,0 +1,97 @@
+.main-tab-selector {
+  margin-bottom: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.main-tab-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.main-tab-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #f8f9fa;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.main-tab-item:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.main-tab-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: white;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.main-tab-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+}
+
+.main-tab-item.active .main-tab-icon {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.main-tab-content {
+  flex: 1;
+}
+
+.main-tab-label {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.main-tab-description {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.main-tab-item.active .main-tab-description {
+  opacity: 1;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .main-tab-list {
+    grid-template-columns: 1fr;
+  }
+
+  .main-tab-item {
+    padding: 1rem;
+  }
+
+  .main-tab-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .main-tab-label {
+    font-size: 1.1rem;
+  }
+
+  .main-tab-description {
+    font-size: 0.8rem;
+  }
+}

@@ -11,6 +11,7 @@ import { createLogger, requestLogger } from './utils/logger';
 import { metricsMiddleware, getSystemHealth } from './utils/monitoring';
 import { createSession, getSession, checkRateLimit } from './utils/session';
 import { analyzeImages as geminiAnalyze } from './services/gemini';
+import { startVideoGeneration, checkVideoStatus } from './services/veo3';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -49,6 +50,7 @@ interface AnalysisRequest {
 
 const imageStorage = new Map<string, StoredImage>();
 const analysisRequests = new Map<string, AnalysisRequest>();
+const videoOperations = new Map<string, any>(); // Veo3 operation 객체 저장
 
 // Request logging middleware (before other middleware)
 app.use(requestLogger);
@@ -846,14 +848,291 @@ app.get('/api/v1/metrics', (req: any, res) => {
   logger.info('Metrics requested', {
     correlationId: req.correlationId,
   });
-  
+
   const systemHealth = getSystemHealth();
-  
+
   res.json({
     timestamp: new Date().toISOString(),
     system: systemHealth,
     correlationId: req.correlationId,
   });
+});
+
+// ========== Veo3 Video Generation Endpoints ==========
+
+// Video generation start endpoint
+app.post('/api/v1/videos/generate', async (req: any, res): Promise<any> => {
+  logger.info('Video generation request received', {
+    correlationId: req.correlationId,
+    sessionId: req.body?.sessionId,
+    hasImage: !!req.body?.imageId,
+  });
+
+  try {
+    // Validate request body
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({
+        error: 'validation_error',
+        message: 'Request body must be valid JSON',
+        details: ['Invalid or missing JSON body']
+      });
+    }
+
+    // Validate sessionId
+    if (!req.body.sessionId) {
+      return res.status(400).json({
+        error: 'validation_error',
+        message: 'sessionId is required',
+        details: ['Missing sessionId field in request body']
+      });
+    }
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(req.body.sessionId)) {
+      return res.status(400).json({
+        error: 'validation_error',
+        message: 'sessionId must be a valid UUID format',
+        details: ['Invalid sessionId format']
+      });
+    }
+
+    // Validate session exists
+    const session = getSession(req.body.sessionId);
+    if (!session) {
+      return res.status(400).json({
+        error: 'validation_error',
+        message: 'Session not found or invalid',
+        details: ['The provided sessionId does not exist']
+      });
+    }
+
+    // Check rate limits
+    const requestRateCheck = checkRateLimit(req.body.sessionId, 'requests', 1, req.correlationId);
+    if (!requestRateCheck.allowed) {
+      return res.status(429).json({
+        error: 'rate_limit_exceeded',
+        message: 'Rate limit exceeded',
+        retryAfter: 60,
+        limits: requestRateCheck.session?.rateLimits || session.rateLimits,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Validate prompt
+    if (!req.body.prompt) {
+      return res.status(400).json({
+        error: 'validation_error',
+        message: 'prompt is required',
+        details: ['Missing prompt field in request body']
+      });
+    }
+
+    if (typeof req.body.prompt !== 'string' || req.body.prompt.trim().length === 0) {
+      return res.status(400).json({
+        error: 'validation_error',
+        message: 'prompt must be a non-empty string',
+        details: ['Prompt field must contain text']
+      });
+    }
+
+    if (req.body.prompt.length > 2000) {
+      return res.status(400).json({
+        error: 'validation_error',
+        message: 'prompt exceeds maximum length of 2000 characters',
+        details: [`Prompt length: ${req.body.prompt.length}, maximum allowed: 2000`]
+      });
+    }
+
+    // Prepare image data if provided
+    let imageData: { mimeType: string; data: string } | undefined;
+    if (req.body.imageId) {
+      if (!uuidRegex.test(req.body.imageId)) {
+        return res.status(400).json({
+          error: 'validation_error',
+          message: 'imageId must be a valid UUID format',
+          details: ['Invalid imageId format']
+        });
+      }
+
+      const storedImage = imageStorage.get(req.body.imageId);
+      if (!storedImage) {
+        return res.status(400).json({
+          error: 'validation_error',
+          message: `Image with id ${req.body.imageId} not found`,
+          details: ['The provided imageId does not exist']
+        });
+      }
+
+      if (storedImage.sessionId !== req.body.sessionId) {
+        return res.status(400).json({
+          error: 'validation_error',
+          message: `Image with id ${req.body.imageId} does not belong to this session`,
+          details: ['Images can only be used within their upload session']
+        });
+      }
+
+      imageData = {
+        mimeType: storedImage.mimeType,
+        data: storedImage.buffer.toString('base64'),
+      };
+    }
+
+    // Validate optional parameters
+    const model = req.body.model || 'veo-3.0-generate-001';
+    if (!['veo-3.0-generate-001', 'veo-3.0-fast-generate-001', 'veo-2.0-generate-001'].includes(model)) {
+      return res.status(400).json({
+        error: 'validation_error',
+        message: 'model must be one of: "veo-3.0-generate-001", "veo-3.0-fast-generate-001", "veo-2.0-generate-001"',
+        details: ['Invalid model value']
+      });
+    }
+
+    const aspectRatio = req.body.aspectRatio || '16:9';
+    if (!['16:9', '9:16'].includes(aspectRatio)) {
+      return res.status(400).json({
+        error: 'validation_error',
+        message: 'aspectRatio must be either "16:9" or "9:16"',
+        details: ['Invalid aspectRatio value']
+      });
+    }
+
+    const resolution = req.body.resolution || '720p';
+    if (!['720p', '1080p'].includes(resolution)) {
+      return res.status(400).json({
+        error: 'validation_error',
+        message: 'resolution must be either "720p" or "1080p"',
+        details: ['Invalid resolution value']
+      });
+    }
+
+    // Start video generation
+    const generationOptions: any = {
+      prompt: req.body.prompt,
+      model: model as 'veo-3.0-generate-001' | 'veo-3.0-fast-generate-001' | 'veo-2.0-generate-001',
+      aspectRatio: aspectRatio as '16:9' | '9:16',
+      resolution: resolution as '720p' | '1080p',
+      correlationId: req.correlationId,
+    };
+
+    if (req.body.negativePrompt) {
+      generationOptions.negativePrompt = req.body.negativePrompt;
+    }
+
+    if (imageData) {
+      generationOptions.image = imageData;
+    }
+
+    const result = await startVideoGeneration(generationOptions);
+
+    // Operation 객체 저장 (상태 확인 시 사용)
+    if (result.operation) {
+      videoOperations.set(result.operationId, result.operation);
+    }
+
+    logger.info('Video generation started', {
+      correlationId: req.correlationId,
+      sessionId: req.body.sessionId,
+      operationId: result.operationId,
+      status: result.status,
+    });
+
+    res.status(202).json({
+      operationId: result.operationId,
+      status: result.status,
+      estimatedCompletionTime: result.estimatedCompletionTime,
+      message: 'Video generation started. Use the operation ID to check status.',
+    });
+
+  } catch (error) {
+    logger.error('Video generation request failed', {
+      correlationId: req.correlationId,
+      sessionId: req.body?.sessionId,
+      error: (error as Error).message,
+    });
+
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to start video generation',
+    });
+  }
+});
+
+// Video generation status endpoint
+app.get('/api/v1/videos/status/:operationId', async (req: any, res): Promise<any> => {
+  logger.info('Video status check requested', {
+    correlationId: req.correlationId,
+    operationId: req.params.operationId,
+  });
+
+  try {
+    // URL 디코딩 처리 (operationId에 슬래시가 포함되어 있을 수 있음)
+    const operationId = decodeURIComponent(req.params.operationId);
+
+    if (!operationId || operationId.trim().length === 0) {
+      return res.status(400).json({
+        error: 'validation_error',
+        message: 'operationId is required',
+        details: ['Missing operationId parameter']
+      });
+    }
+
+    // 저장된 operation 객체 찾기
+    const storedOperation = videoOperations.get(operationId);
+    if (!storedOperation) {
+      return res.status(404).json({
+        error: 'not_found',
+        message: 'Video operation not found',
+        details: ['The provided operationId does not exist or has expired']
+      });
+    }
+
+    // Check video status (저장된 operation 전달)
+    const result = await checkVideoStatus(storedOperation, req.correlationId);
+
+    // 업데이트된 operation 저장
+    if (result.operation) {
+      videoOperations.set(result.operationId, result.operation);
+    }
+
+    logger.info('Video status retrieved', {
+      correlationId: req.correlationId,
+      operationId: operationId,
+      status: result.status,
+    });
+
+    if (result.status === 'completed') {
+      res.status(200).json({
+        operationId: result.operationId,
+        status: result.status,
+        videoUrl: result.videoUrl,
+        mimeType: result.mimeType,
+      });
+    } else if (result.status === 'failed') {
+      res.status(200).json({
+        operationId: result.operationId,
+        status: result.status,
+        error: result.error,
+      });
+    } else {
+      res.status(202).json({
+        operationId: result.operationId,
+        status: result.status,
+        estimatedCompletionTime: result.estimatedCompletionTime,
+      });
+    }
+
+  } catch (error) {
+    logger.error('Video status check failed', {
+      correlationId: req.correlationId,
+      operationId: req.params.operationId,
+      error: (error as Error).message,
+    });
+
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to check video status',
+    });
+  }
 });
 
 // Start server only if not in test environment

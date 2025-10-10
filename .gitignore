@@ -87,3 +87,4 @@ build.zip
 .claude/
 memory/
 templates/
+.playwright-mcp/
