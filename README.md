@@ -159,8 +159,79 @@ RESTful API 규칙을 따릅니다. 주요 엔드포인트:
 - 프롬프트 길이: 1-2000자
 - 분석 타임아웃: 10초
 
+## 🚀 배포 (Google Compute Engine)
+
+회사 팀원들과 공유하기 위해 GCE에 배포하는 방법입니다.
+
+### 빠른 배포 가이드
+
+**1. GCE 인스턴스에서 서버 초기 설정:**
+```bash
+# 프로젝트 클론
+git clone https://github.com/yourusername/nano.git
+cd nano
+
+# 서버 환경 자동 설정 (Docker, Git 등)
+./scripts/setup-gce-server.sh
+
+# 재로그인 (Docker 권한 적용)
+exit
+# SSH 재접속 후
+cd nano
+```
+
+**2. 환경 변수 설정:**
+```bash
+# 프로덕션 환경 변수 파일 생성
+cp .env.production.example .env.production
+
+# 필수 값 입력
+nano .env.production
+# - GEMINI_API_KEY: 실제 Gemini API 키
+# - REACT_APP_API_URL: http://YOUR_GCE_EXTERNAL_IP:3000
+# - SESSION_SECRET: 강력한 랜덤 문자열 (32자 이상)
+```
+
+**3. 배포 실행:**
+```bash
+# 자동 배포 스크립트 실행
+./scripts/deploy-gce.sh
+```
+
+**4. 접속:**
+- Frontend: `http://YOUR_GCE_EXTERNAL_IP`
+- Backend API: `http://YOUR_GCE_EXTERNAL_IP:3000`
+
+### 관리 명령어
+
+```bash
+# 로그 확인
+docker compose -f docker-compose.prod.yml logs -f
+
+# 재시작
+docker compose -f docker-compose.prod.yml restart
+
+# 중지
+docker compose -f docker-compose.prod.yml down
+
+# 업데이트 배포
+git pull
+./scripts/deploy-gce.sh
+```
+
+### GCE 인스턴스 권장 사양
+- **타입**: e2-medium (2 vCPU, 4GB RAM) 이상
+- **OS**: Ubuntu 22.04 LTS
+- **디스크**: 20GB 이상
+- **방화벽**: HTTP (80), TCP (3000), SSH (22) 포트 오픈
+
+### 보안 설정
+- **방화벽**: 회사 IP 대역만 허용 (GCP Console > VPC network > Firewall)
+- **환경 변수**: `.env.production` 파일 권한 제한 (`chmod 600`)
+- **HTTPS**: 도메인 연결 시 Let's Encrypt SSL 인증서 권장
+
+📚 **자세한 배포 가이드**: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+
 ## 📄 라이선스
 
 ISC
-
-
